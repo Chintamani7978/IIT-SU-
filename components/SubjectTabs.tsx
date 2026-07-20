@@ -1,0 +1,154 @@
+'use client';
+
+import { useState } from 'react';
+import { Resource } from '@/lib/types';
+import { FileText, FileQuestion, PlaySquare, FlaskConical, ThumbsUp, ShieldCheck } from 'lucide-react';
+import { upvoteResource } from '@/lib/mockDb';
+import { useRouter } from 'next/navigation';
+
+export default function SubjectTabs({ resources }: { resources: Resource[] }) {
+  const [activeTab, setActiveTab] = useState<'note' | 'pyq' | 'video' | 'lab'>('note');
+  const [filterYear, setFilterYear] = useState<string>('all');
+  const [filterExam, setFilterExam] = useState<string>('all');
+  const router = useRouter();
+
+  const handleUpvote = (id: string) => {
+    upvoteResource(id);
+    router.refresh();
+  };
+
+  const filteredResources = resources.filter((r) => {
+    if (r.type !== activeTab) return false;
+    if (activeTab === 'pyq') {
+      const pyq = r as Extract<Resource, { type: 'pyq' }>;
+      if (filterYear !== 'all' && pyq.year !== filterYear) return false;
+      if (filterExam !== 'all' && pyq.examType !== filterExam) return false;
+    }
+    return true;
+  });
+
+  const tabs = [
+    { id: 'note', label: 'Class Notes', icon: FileText },
+    { id: 'pyq', label: 'PYQs & Solutions', icon: FileQuestion },
+    { id: 'video', label: 'Video Lectures', icon: PlaySquare },
+    { id: 'lab', label: 'Lab Manuals', icon: FlaskConical },
+  ] as const;
+
+  return (
+    <div className="space-y-6">
+      {/* Tab Navigation */}
+      <div className="flex overflow-x-auto border-b border-[var(--border)] scrollbar-hide">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-6 py-4 font-medium text-sm transition-colors whitespace-nowrap border-b-2 ${
+                isActive
+                  ? 'border-[var(--primary)] text-[var(--primary)]'
+                  : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--border)]'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* PYQ Filters */}
+      {activeTab === 'pyq' && (
+        <div className="flex flex-wrap gap-4 p-4 bg-[var(--card)] rounded-lg border border-[var(--border)]">
+          <select
+            value={filterExam}
+            onChange={(e) => setFilterExam(e.target.value)}
+            className="bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] text-sm rounded-md focus:ring-[var(--primary)] focus:border-[var(--primary)] block p-2 outline-none"
+          >
+            <option value="all">All Exams</option>
+            <option value="mid-sem">Mid-Sem</option>
+            <option value="end-sem">End-Sem</option>
+          </select>
+          <select
+            value={filterYear}
+            onChange={(e) => setFilterYear(e.target.value)}
+            className="bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] text-sm rounded-md focus:ring-[var(--primary)] focus:border-[var(--primary)] block p-2 outline-none"
+          >
+            <option value="all">All Years</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+      )}
+
+      {/* Resource Grid */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {filteredResources.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-[var(--muted-foreground)] bg-[var(--card)] rounded-xl border border-[var(--border)] border-dashed">
+            No resources found for this tab.
+          </div>
+        ) : (
+          filteredResources.map((resource) => (
+            <div key={resource.id} className="dash-card p-5 flex flex-col justify-between group">
+              <div>
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="font-semibold text-lg text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors line-clamp-2">
+                    {resource.title}
+                  </h3>
+                  {resource.isVerified && (
+                    <ShieldCheck className="w-5 h-5 text-green-500 shrink-0" title="Verified" />
+                  )}
+                </div>
+                
+                <div className="space-y-1 mb-4 text-sm">
+                  <p className="text-[var(--muted-foreground)]">By {resource.authorName} {resource.batch && `(${resource.batch})`}</p>
+                  {resource.unit && <p className="text-[var(--primary)]/80">{resource.unit}</p>}
+                  
+                  {resource.type === 'note' && (resource as any).badges?.map((badge: string, i: number) => (
+                    <span key={i} className="inline-block mr-2 mt-2 px-2 py-0.5 bg-yellow-500/10 text-yellow-500 text-xs rounded border border-yellow-500/20">
+                      {badge}
+                    </span>
+                  ))}
+                  {resource.type === 'pyq' && (
+                    <div className="flex gap-2 mt-2">
+                      <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 text-xs rounded border border-purple-500/20 uppercase">
+                        {(resource as any).examType}
+                      </span>
+                      <span className="px-2 py-0.5 bg-[var(--background)] text-[var(--muted-foreground)] text-xs rounded border border-[var(--border)]">
+                        {(resource as any).year}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-[var(--border)] mt-auto">
+                <button
+                  onClick={() => handleUpvote(resource.id)}
+                  className="flex items-center gap-1.5 text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors bg-[var(--background)] hover:bg-[var(--card-hover)] px-3 py-1.5 rounded-md border border-[var(--border)]"
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                  <span className="text-sm font-medium">{resource.upvotes}</span>
+                </button>
+                
+                {resource.type === 'video' ? (
+                  <a href={(resource as any).videoUrl} target="_blank" rel="noreferrer" className="text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium">
+                    Watch Video →
+                  </a>
+                ) : (
+                  <a href={(resource as any).pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium">
+                    View PDF →
+                  </a>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,60 @@
+'use client';
+
+export default function UserLayoutWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex-1 flex flex-col h-full min-w-0 relative bg-[var(--background)]">
+      
+      {/* Top Left Logo */}
+      <div className="absolute top-6 left-6 md:left-10 z-50 flex items-center gap-2 pointer-events-auto">
+        <span className="flex items-center gap-0.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] animate-pulse"></span>
+        </span>
+        <span className="font-extrabold text-2xl tracking-tighter text-[var(--foreground)]">IIT SU</span>
+      </div>
+
+      {/* Floating Glass Pill Navigation */}
+      <div className="sticky top-6 z-40 flex justify-center w-full px-4 mb-4 pointer-events-none">
+        <div className="pointer-events-auto flex items-center justify-between bg-zinc-800/40 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-2 w-full max-w-[600px] shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative">
+          
+          {/* Top highlight for glass effect */}
+          <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+          
+          {/* Left Glass Orb Logo */}
+          <div className="relative w-11 h-11 rounded-full bg-gradient-to-br from-white/20 to-white/0 border border-white/20 flex items-center justify-center shadow-[inset_0_2px_10px_rgba(255,255,255,0.2)] shrink-0">
+             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 shadow-inner flex items-center justify-center">
+               <span className="w-2 h-2 rounded-full bg-[var(--primary)] shadow-[0_0_10px_var(--primary)] animate-pulse"></span>
+             </div>
+          </div>
+
+          {/* Center Navigation Links */}
+          <div className="hidden md:flex items-center justify-center gap-8 px-6 text-sm font-medium">
+            <a href="/" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Home</a>
+            <a href="/departments" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Departments</a>
+            <a href="#" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Contact</a>
+            <a href="#" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">About</a>
+          </div>
+
+          {/* Profile Icon */}
+          <button className="w-11 h-11 flex flex-col justify-center items-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors shrink-0 text-zinc-300 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto relative w-full">
+        <div className="max-w-[1200px] mx-auto min-h-full flex flex-col p-4 md:p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+}
