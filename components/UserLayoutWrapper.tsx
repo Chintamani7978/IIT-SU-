@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function UserLayoutWrapper({
   children,
 }: {
@@ -33,10 +35,10 @@ export default function UserLayoutWrapper({
 
           {/* Center Navigation Links */}
           <div className="hidden md:flex items-center justify-center gap-8 px-6 text-sm font-medium">
-            <a href="/" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Home</a>
-            <a href="/departments" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Departments</a>
-            <a href="#" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Contact</a>
-            <a href="#" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">About</a>
+            <Link href="/" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Home</Link>
+            <Link href="/departments" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Departments</Link>
+            <Link href="#" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Contact</Link>
+            <Link href="#" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">About</Link>
           </div>
 
           {/* Profile Icon */}

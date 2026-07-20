@@ -1,4 +1,4 @@
-import { getSubjectById, getResourcesBySubjectId, DEPARTMENTS } from '@/lib/mockDb';
+import { getSubjectById, getResourcesBySubjectId, SUBJECTS } from '@/lib/mockDb';
 import SubjectTabs from '@/components/SubjectTabs';
 import Link from 'next/link';
 import { ChevronLeft, UploadCloud } from 'lucide-react';
@@ -53,4 +53,10 @@ export default async function SubjectPage({
       </main>
     </div>
   );
+}
+
+export async function generateStaticParams() {
+  return SUBJECTS.map((subject) => ({
+    subjectId: subject.id,
+  }));
 }

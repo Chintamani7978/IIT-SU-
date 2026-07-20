@@ -63,3 +63,22 @@ export default async function BranchYearPage({
     </div>
   );
 }
+
+export async function generateStaticParams() {
+  const params: Array<{ branch: string; year: string }> = [];
+  
+  // common branch has only Year 1
+  params.push({ branch: 'common', year: '1' });
+  
+  // other branches have years 1, 2, 3, 4
+  const branches = ['cse-core', 'cse-aiml', 'cse-ics', 'ece', 'eee'];
+  const years = ['1', '2', '3', '4'];
+  
+  for (const b of branches) {
+    for (const y of years) {
+      params.push({ branch: b, year: y });
+    }
+  }
+  
+  return params;
+}

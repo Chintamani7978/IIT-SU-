@@ -100,7 +100,9 @@ export default function SubjectTabs({ resources }: { resources: Resource[] }) {
                     {resource.title}
                   </h3>
                   {resource.isVerified && (
-                    <ShieldCheck className="w-5 h-5 text-green-500 shrink-0" title="Verified" />
+                    <span title="Verified">
+                      <ShieldCheck className="w-5 h-5 text-green-500 shrink-0" />
+                    </span>
                   )}
                 </div>
                 

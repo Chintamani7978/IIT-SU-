@@ -77,3 +77,13 @@ export default async function BranchYearSelector({ params }: { params: Promise<{
     </div>
   );
 }
+
+export async function generateStaticParams() {
+  const params: Array<{ branch: string }> = [];
+  for (const dept of DEPARTMENTS) {
+    for (const b of dept.branches) {
+      params.push({ branch: b.id });
+    }
+  }
+  return params;
+}
