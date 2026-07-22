@@ -179,6 +179,7 @@ export let RESOURCES: Resource[] = [
     status: 'approved',
     createdAt: new Date().toISOString(),
     pdfUrl: '#',
+    badges: [],
   },
   {
     id: 'res-2',
