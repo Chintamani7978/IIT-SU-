@@ -30,12 +30,25 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
+    font-family: 'DM Sans', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
   }
 }
 
 @layer utilities {
   .dash-card {
-    @apply bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-lg;
+    @apply bg-[var(--card)] border border-[var(--border)] rounded-xl;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#ccff00] via-emerald-300 to-teal-600;
+  }
+
+  .font-heading {
+    font-family: 'Bebas Neue', system-ui, sans-serif;
   }
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { getSubjectsByBranchAndYear, DEPARTMENTS } from '@/lib/mockDb';
-import { Book, ChevronLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { DEPARTMENTS, SUBJECTS } from '@/lib/mockDb';
 
 export default async function BranchYearPage({
   params
@@ -9,76 +9,75 @@ export default async function BranchYearPage({
 }) {
   const { branch, year } = await params;
   const yearNum = parseInt(year, 10);
-  const subjects = getSubjectsByBranchAndYear(branch, yearNum);
-  
-  // Find branch name
+
   let branchName = branch;
-  DEPARTMENTS.forEach(d => {
+  let deptName = 'Department';
+  for (const d of DEPARTMENTS) {
     const b = d.branches.find(b => b.id === branch);
-    if (b) branchName = b.name;
-  });
+    if (b) { branchName = b.name; deptName = d.name; break; }
+  }
+
+  const yearLabels: Record<number, string> = { 1: 'First', 2: 'Second', 3: 'Third', 4: 'Fourth' };
+  const yearSemMap: Record<number, number[]> = { 1: [1, 2], 2: [3, 4], 3: [5, 6], 4: [7, 8] };
+  const semesters = yearSemMap[yearNum] || [1, 2];
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 text-slate-300 hover:text-cyan-400 transition-colors">
-          <ChevronLeft className="w-5 h-5" />
+    <div className="min-h-[calc(100vh-120px)] max-w-5xl mx-auto px-4 py-8 flex flex-col justify-center">
+      <div className="flex flex-col items-center text-center">
+        <Link href={`/department/${branch}`} className="group flex items-center gap-3 text-[10px] font-semibold tracking-[0.2em] uppercase text-zinc-400 hover:text-[var(--primary)] transition-colors mb-8">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1.5 transition-transform duration-300 ease-out" /> 
+          Back to Years
         </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-100">
+
+        <div className="mb-16">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-zinc-500 mb-4">{deptName}</p>
+          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-none max-w-4xl mx-auto">
             {branchName}
           </h1>
-          <p className="text-slate-400">Year {yearNum} Subjects</p>
+          <p className="text-sm text-zinc-500 mt-3">{yearLabels[yearNum]} Year</p>
         </div>
       </div>
 
-      {subjects.length === 0 ? (
-        <div className="glass-panel p-12 text-center">
-          <p className="text-slate-400 text-lg">No subjects found for this year.</p>
-        </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {subjects.map((subject) => (
-            <Link key={subject.id} href={`/subject/${subject.id}`} className="group">
-              <div className="glass-panel p-6 h-full border-slate-800 hover:border-cyan-500/50 transition-all">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 bg-slate-800 rounded-lg text-cyan-500 group-hover:bg-cyan-500/10 transition-colors">
-                    <Book className="w-6 h-6" />
-                  </div>
-                  <span className="px-2 py-1 bg-slate-800 text-slate-300 text-xs font-mono rounded border border-slate-700">
-                    {subject.code}
-                  </span>
-                </div>
-                <h2 className="text-xl font-semibold text-slate-100 group-hover:text-cyan-400 transition-colors mb-2">
-                  {subject.name}
-                </h2>
-                <p className="text-slate-400 text-sm">
-                  Semester {subject.semester}
-                </p>
+      <div className="w-full h-px bg-white/10 mb-8"></div>
+
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
+        {semesters.map((sem, index) => {
+          const subjectCount = SUBJECTS.filter(s => s.branchId === branch && s.year === yearNum && s.semester === sem).length;
+          return (
+            <Link
+              key={sem}
+              href={`/department/${branch}/${year}/${sem}`}
+              className="group relative flex flex-col items-center justify-center p-6 w-full md:w-auto min-w-[200px] border border-white/10 hover:border-[var(--primary)]/50 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300"
+            >
+              <div className="text-[10px] font-mono text-zinc-500 group-hover:text-[var(--primary)] transition-colors mb-4 tracking-[0.2em]">
+                0{index + 1}
               </div>
+              
+              <h3 className="text-xl font-light text-zinc-300 group-hover:text-white transition-colors tracking-tight mb-2">
+                Semester {sem}
+              </h3>
+              
+              <p className="text-xs text-zinc-500 font-light group-hover:text-zinc-400 transition-colors">
+                {subjectCount} subject{subjectCount !== 1 ? 's' : ''}
+              </p>
+
+              <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--primary)] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ease-out"></div>
             </Link>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 export async function generateStaticParams() {
   const params: Array<{ branch: string; year: string }> = [];
-  
-  // common branch has only Year 1
-  params.push({ branch: 'common', year: '1' });
-  
-  // other branches have years 1, 2, 3, 4
   const branches = ['cse-core', 'cse-aiml', 'cse-ics', 'ece', 'eee'];
   const years = ['1', '2', '3', '4'];
-  
   for (const b of branches) {
     for (const y of years) {
       params.push({ branch: b, year: y });
     }
   }
-  
   return params;
 }

@@ -3,12 +3,23 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DEPARTMENTS } from '@/lib/mockDb';
-import { BookOpen, GraduationCap, ChevronRight, Home } from 'lucide-react';
-import { useState } from 'react';
+import { Home, GraduationCap, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function UserSidebar() {
   const pathname = usePathname();
-  const [openDept, setOpenDept] = useState<string | null>(DEPARTMENTS[0].id);
+  const [openDept, setOpenDept] = useState<string | null>(null);
+
+  useEffect(() => {
+    for (const dept of DEPARTMENTS) {
+      for (const branch of dept.branches) {
+        if (pathname.includes(branch.id) || pathname.includes(`/subject/`)) {
+          setOpenDept(dept.id);
+          return;
+        }
+      }
+    }
+  }, [pathname]);
 
   return (
     <aside className="w-72 border-r border-[var(--border)] bg-[var(--background)] flex flex-col h-full overflow-y-auto">

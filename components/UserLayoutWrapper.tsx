@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function UserLayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isDepartments = pathname.includes('/department') || pathname.includes('/departments') || pathname.includes('/subject');
   return (
     <div className="flex-1 flex flex-col h-full min-w-0 relative bg-[var(--background)]">
       
@@ -35,10 +38,10 @@ export default function UserLayoutWrapper({
 
           {/* Center Navigation Links */}
           <div className="hidden md:flex items-center justify-center gap-8 px-6 text-sm font-medium">
-            <Link href="/" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Home</Link>
-            <Link href="/departments" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Departments</Link>
-            <Link href="#" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">Contact</Link>
-            <Link href="#" className="text-zinc-300 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all">About</Link>
+            <Link href="/" className={`transition-all ${pathname === '/' ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-zinc-300 hover:text-white'}`}>Home</Link>
+            <Link href="/#departments" className={`transition-all ${isDepartments ? 'text-[var(--primary)] drop-shadow-[0_0_8px_rgba(204,255,0,0.6)]' : 'text-zinc-300 hover:text-white'}`}>Departments</Link>
+            <Link href="#" className="text-zinc-300 hover:text-white transition-all">Contact</Link>
+            <Link href="#" className="text-zinc-300 hover:text-white transition-all">About</Link>
           </div>
 
           {/* Profile Icon */}

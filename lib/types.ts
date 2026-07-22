@@ -1,4 +1,4 @@
-export type DepartmentId = 'cse' | 'ece' | 'eee' | 'common';
+export type DepartmentId = 'cse' | 'ece' | 'eee';
 
 export interface Branch {
   id: string;
@@ -18,6 +18,8 @@ export interface Subject {
   branchId: string;
   year: number; // 1 to 4
   semester: number; // 1 to 8
+  credits: number;
+  type: 'theory' | 'lab' | 'project' | 'seminar' | 'viva';
 }
 
 export type ResourceType = 'note' | 'pyq' | 'video' | 'lab';

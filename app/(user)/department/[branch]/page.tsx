@@ -9,22 +9,16 @@ export default async function BranchYearSelector({ params }: { params: Promise<{
   let branchName = `Unknown: ${branchId}`;
   let deptName = 'Department';
   
-  if (branchId === 'common') {
-    branchName = '1st Year (Common)';
-    deptName = 'All Engineering Departments';
-  } else {
-    for (const d of DEPARTMENTS) {
-      const b = d.branches.find(b => b.id === branchId);
-      if (b) {
-        branchName = b.name;
-        deptName = d.name;
-        break;
-      }
+  for (const d of DEPARTMENTS) {
+    const b = d.branches.find(b => b.id === branchId);
+    if (b) {
+      branchName = b.name;
+      deptName = d.name;
+      break;
     }
   }
 
-  const isCommon = branchId === 'common';
-  const years = isCommon ? [1] : [1, 2, 3, 4]; // Offering all 4 years for branches, or just 1st for common
+  const years = [1, 2, 3, 4];
 
   return (
     <div className="min-h-[calc(100vh-120px)] max-w-5xl mx-auto px-4 py-8 flex flex-col justify-center">

@@ -109,12 +109,6 @@ export default function SubjectTabs({ resources }: { resources: Resource[] }) {
                 <div className="space-y-1 mb-4 text-sm">
                   <p className="text-[var(--muted-foreground)]">By {resource.authorName} {resource.batch && `(${resource.batch})`}</p>
                   {resource.unit && <p className="text-[var(--primary)]/80">{resource.unit}</p>}
-                  
-                  {resource.type === 'note' && (resource as any).badges?.map((badge: string, i: number) => (
-                    <span key={i} className="inline-block mr-2 mt-2 px-2 py-0.5 bg-yellow-500/10 text-yellow-500 text-xs rounded border border-yellow-500/20">
-                      {badge}
-                    </span>
-                  ))}
                   {resource.type === 'pyq' && (
                     <div className="flex gap-2 mt-2">
                       <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 text-xs rounded border border-purple-500/20 uppercase">
