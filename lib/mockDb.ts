@@ -249,3 +249,17 @@ export const approveResource = (resourceId: string) => {
     resource.isVerified = true;
   }
 };
+
+export const searchCatalog = (query: string) => {
+  const q = query.toLowerCase();
+  const subjects = SUBJECTS.filter(
+    (s) => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q)
+  ).slice(0, 8);
+  const resources = RESOURCES.filter((r) => r.status === 'approved' && r.title.toLowerCase().includes(q))
+    .slice(0, 8)
+    .map((r) => {
+      const subject = SUBJECTS.find((s) => s.id === r.subjectId);
+      return { ...r, subjectName: subject?.name, subjectCode: subject?.code };
+    });
+  return { subjects, resources };
+};
