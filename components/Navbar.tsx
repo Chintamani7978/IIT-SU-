@@ -16,7 +16,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <Link href="/" className="block">
               <img
-                src={`${basePath}/images/iit-burla-logo.png`}
+                src={`${basePath}/logo.svg`}
                 alt="SUIIT E-Learning Logo"
                 className="h-12 w-auto"
               />

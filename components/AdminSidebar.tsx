@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, ShieldCheck, Search, Settings, HelpCircle, MessageSquare } from 'lucide-react';
 
@@ -98,11 +98,9 @@ export default function AdminSidebar() {
       
       <div className="mt-auto p-6">
         <Link href="/" className="block">
-          <Image
-            src="/images/iit-burla-logo.png"
+          <img
+            src="/logo.svg"
             alt="SUIIT E-Learning Logo"
-            width={220}
-            height={70}
             className="h-12 w-auto"
           />
         </Link>
