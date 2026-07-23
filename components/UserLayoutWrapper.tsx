@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 export default function UserLayoutWrapper({
@@ -14,13 +15,16 @@ export default function UserLayoutWrapper({
     <div className="flex-1 flex flex-col h-full min-w-0 relative bg-[var(--background)]">
       
       {/* Top Left Logo */}
-      <div className="absolute top-6 left-6 md:left-10 z-50 flex items-center gap-2 pointer-events-auto">
-        <span className="flex items-center gap-0.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]"></span>
-          <span className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] animate-pulse"></span>
-        </span>
-        <span className="font-extrabold text-2xl tracking-tighter text-[var(--foreground)]">IIT SU</span>
-      </div>
+      <Link href="/" className="absolute top-6 left-6 md:left-10 z-50 pointer-events-auto">
+        <Image
+          src="/images/iit-burla-logo.png"
+          alt="IIT Burla E-Learning Logo"
+          width={220}
+          height={70}
+          className="h-14 w-auto"
+          priority
+        />
+      </Link>
 
       {/* Floating Glass Pill Navigation */}
       <div className="sticky top-6 z-40 flex justify-center w-full px-4 mb-4 pointer-events-none">

@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 
 export default function UserSidebar() {
   const pathname = usePathname();
-  const [openDept, setOpenDept] = useState<string | null>(null);
+  const [openDept, setOpenDept] = useState<string | null>(null);            
 
   useEffect(() => {
     for (const dept of DEPARTMENTS) {

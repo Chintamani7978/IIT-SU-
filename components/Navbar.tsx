@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Menu, X, BookOpen, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
+import { Menu, X, ShieldCheck } from 'lucide-react';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,9 +13,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <BookOpen className="text-cyan-500 h-8 w-8" />
-            <Link href="/" className="font-bold text-xl tracking-tight text-slate-100">
-              IIT <span className="text-cyan-500">SU</span>
+            <Link href="/" className="block">
+              <Image
+                src="/images/iit-burla-logo.png"
+                alt="IIT Burla E-Learning Logo"
+                width={220}
+                height={70}
+                className="h-12 w-auto"
+                priority
+              />
             </Link>
           </div>
           <div className="hidden md:block">

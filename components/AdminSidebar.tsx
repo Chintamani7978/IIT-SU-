@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Layers, ShieldCheck, Search, Settings, HelpCircle, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Search, Settings, HelpCircle, MessageSquare } from 'lucide-react';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -96,12 +97,14 @@ export default function AdminSidebar() {
       </div>
       
       <div className="mt-auto p-6">
-        <Link href="/" className="font-extrabold text-xl tracking-tighter text-[var(--foreground)] flex items-center gap-2">
-          <span className="flex items-center gap-0.5">
-            <span className="w-2 h-2 rounded-full bg-[var(--primary)]"></span>
-            <span className="w-2 h-2 rounded-full bg-[var(--primary)]"></span>
-          </span>
-          IIT SU
+        <Link href="/" className="block">
+          <Image
+            src="/images/iit-burla-logo.png"
+            alt="IIT Burla E-Learning Logo"
+            width={220}
+            height={70}
+            className="h-12 w-auto"
+          />
         </Link>
       </div>
     </aside>
