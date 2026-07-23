@@ -83,6 +83,8 @@ The team's earlier attempt at the same idea. Audited 2026-07-24:
 - [ ] Keep pages server-rendered where possible; fetch in server components
 
 ### Phase 2 — Auth + uploads + moderation (1–2 weeks)
+
+> Status 2026-07-24: code side DONE. `/login` (Google OAuth), `/auth/callback`, auth button in nav, real PDF uploads (browser → storage, 20 MB/PDF-only), moderation queue wired to server actions, `/admin` role-gated server-side, upvotes toggle per user. Everything degrades to demo mode until Supabase env vars are set. Remaining: enable the Google provider in the Supabase dashboard (see `supabase/README.md`) and promote moderator accounts. "My uploads" page deferred to Phase 3.
 - [ ] Google sign-in; store profile on first login
 - [ ] Wire `UploadModal`: PDF → Supabase Storage (limit ~20 MB, PDF-only validation), row inserted as `pending`
 - [ ] Wire admin moderation page: list pending, preview PDF, approve/reject with reason
