@@ -1,0 +1,152 @@
+// Server-side data access. Reads from Supabase when configured, otherwise
+// falls back to the local mock data so the app keeps working before the
+// team wires up a Supabase project (see supabase/README.md).
+import 'server-only';
+import { Department, Resource, Subject } from './types';
+import { createClient, isSupabaseConfigured } from './supabase/server';
+import * as mock from './mockDb';
+
+const SIGNED_URL_TTL_SECONDS = 60 * 60;
+
+interface ResourceRow {
+  id: string;
+  subject_id: string;
+  type: 'note' | 'pyq' | 'video' | 'lab';
+  title: string;
+  author_name: string;
+  batch: string | null;
+  unit: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  is_verified: boolean;
+  badges: string[];
+  file_path: string | null;
+  video_url: string | null;
+  exam_type: 'mid-sem' | 'end-sem' | null;
+  exam_year: string | null;
+  code_snippet: string | null;
+  viva_questions: string[] | null;
+  created_at: string;
+  votes: { count: number }[];
+}
+
+function rowToResource(row: ResourceRow, pdfUrl: string): Resource {
+  const base = {
+    id: row.id,
+    subjectId: row.subject_id,
+    title: row.title,
+    authorName: row.author_name,
+    batch: row.batch ?? undefined,
+    unit: row.unit ?? undefined,
+    upvotes: row.votes[0]?.count ?? 0,
+    isVerified: row.is_verified,
+    status: row.status,
+    createdAt: row.created_at,
+  };
+
+  switch (row.type) {
+    case 'note':
+      return { ...base, type: 'note', pdfUrl, badges: row.badges };
+    case 'pyq':
+      return {
+        ...base,
+        type: 'pyq',
+        pdfUrl,
+        examType: row.exam_type ?? 'end-sem',
+        year: row.exam_year ?? '',
+      };
+    case 'video':
+      return { ...base, type: 'video', videoUrl: row.video_url ?? '' };
+    case 'lab':
+      return {
+        ...base,
+        type: 'lab',
+        pdfUrl,
+        codeSnippet: row.code_snippet ?? undefined,
+        vivaQuestions: row.viva_questions ?? undefined,
+      };
+  }
+}
+
+export async function getDepartments(): Promise<Department[]> {
+  if (!isSupabaseConfigured()) return mock.DEPARTMENTS;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('departments')
+    .select('id, name, branches (id, name)')
+    .order('id');
+  if (error) throw error;
+  return data as Department[];
+}
+
+export async function getSubjectsByBranchYearSemester(
+  branchId: string,
+  year: number,
+  semester: number
+): Promise<Subject[]> {
+  if (!isSupabaseConfigured())
+    return mock.getSubjectsByBranchYearSemester(branchId, year, semester);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('subjects')
+    .select('id, name, code, branch_id, year, semester, credits, type')
+    .eq('branch_id', branchId)
+    .eq('year', year)
+    .eq('semester', semester)
+    .order('code');
+  if (error) throw error;
+  return data.map(({ branch_id, ...s }) => ({ ...s, branchId: branch_id })) as Subject[];
+}
+
+export async function getSubjectById(subjectId: string): Promise<Subject | undefined> {
+  if (!isSupabaseConfigured()) return mock.getSubjectById(subjectId);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('subjects')
+    .select('id, name, code, branch_id, year, semester, credits, type')
+    .eq('id', subjectId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return undefined;
+  const { branch_id, ...s } = data;
+  return { ...s, branchId: branch_id } as Subject;
+}
+
+export async function getResourcesBySubjectId(subjectId: string): Promise<Resource[]> {
+  if (!isSupabaseConfigured()) return mock.getResourcesBySubjectId(subjectId);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('resources')
+    .select('*, votes (count)')
+    .eq('subject_id', subjectId)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+
+  const rows = data as ResourceRow[];
+  const paths = rows.map((r) => r.file_path).filter((p): p is string => p !== null);
+  const signedByPath = new Map<string, string>();
+  if (paths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from('resources')
+      .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
+    for (const s of signed ?? []) {
+      if (s.signedUrl && s.path) signedByPath.set(s.path, s.signedUrl);
+    }
+  }
+
+  return rows.map((row) =>
+    rowToResource(row, row.file_path ? signedByPath.get(row.file_path) ?? '#' : '#')
+  );
+}
+
+export function findBranch(departments: Department[], branchId: string) {
+  for (const dept of departments) {
+    const branch = dept.branches.find((b) => b.id === branchId);
+    if (branch) return { department: dept, branch };
+  }
+  return undefined;
+}
