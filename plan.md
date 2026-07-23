@@ -66,6 +66,9 @@ The team's earlier attempt at the same idea. Audited 2026-07-24:
 - [ ] Agree on branch workflow: feature branches + PRs, no direct pushes to `main`
 
 ### Phase 1 — Real backend (1–2 weeks) ← **highest priority**
+
+> Status 2026-07-24: code side DONE. Migrations in `supabase/migrations/`, data layer in `lib/db.ts` (falls back to mock data until env vars are set), all catalog pages wired. Remaining: a team member creates the Supabase project and follows `supabase/README.md`.
+
 - [ ] Create Supabase project; add `@supabase/supabase-js` + `@supabase/ssr`
 - [ ] Schema (mirrors `lib/types.ts`):
   - `departments`, `branches`, `subjects` — seed from `mockDb.ts` data (write a one-time seed script)

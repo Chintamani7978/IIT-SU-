@@ -4,8 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X, ShieldCheck } from 'lucide-react';
 
-const basePath = process.env.NODE_ENV === 'production' ? '/IIT-SU-' : '';
-
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -16,7 +14,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <Link href="/" className="block">
               <img
-                src={`${basePath}/logo.svg`}
+                src="/logo.svg"
                 alt="SUIIT E-Learning Logo"
                 className="h-12 w-auto"
               />

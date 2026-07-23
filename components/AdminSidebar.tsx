@@ -99,7 +99,7 @@ export default function AdminSidebar() {
       <div className="mt-auto p-6">
         <Link href="/" className="block">
           <img
-            src={`${process.env.NODE_ENV === 'production' ? '/IIT-SU-' : ''}/logo.svg`}
+            src="/logo.svg"
             alt="SUIIT E-Learning Logo"
             className="h-12 w-auto"
           />
