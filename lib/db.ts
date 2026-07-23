@@ -209,6 +209,109 @@ export async function getPendingResources(): Promise<PendingResource[]> {
   }));
 }
 
+// Moderator-only... no — this reads the signed-in user's own submissions,
+// all statuses, via the cookie-bound client (RLS: "uploaders see own submissions").
+export async function getMyResources(): Promise<PendingResource[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const { createClient: createCookieClient } = await import('./supabase/server');
+  const supabase = await createCookieClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('resources')
+    .select('*, votes (count), subjects (name, code)')
+    .eq('uploader_id', user.id)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+
+  const rows = data as (ResourceRow & { subjects: { name: string; code: string } | null })[];
+  const paths = rows.map((r) => r.file_path).filter((p): p is string => p !== null);
+  const signedByPath = new Map<string, string>();
+  if (paths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from('resources')
+      .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
+    for (const s of signed ?? []) {
+      if (s.signedUrl && s.path) signedByPath.set(s.path, s.signedUrl);
+    }
+  }
+
+  return rows.map((row) => ({
+    ...rowToResource(row, row.file_path ? signedByPath.get(row.file_path) ?? '#' : '#'),
+    subjectName: row.subjects?.name,
+    subjectCode: row.subjects?.code,
+  }));
+}
+
+export interface SearchResults {
+  subjects: Subject[];
+  resources: (Resource & { subjectName?: string; subjectCode?: string })[];
+}
+
+// Public catalog search: subjects by name/code, approved resources by title.
+// Uses ilike substring matching (simple, index-free but fine at this scale)
+// rather than the tsvector GIN indexes — good enough per the project plan.
+export async function searchCatalog(query: string): Promise<SearchResults> {
+  const q = query.trim();
+  if (q.length < 2) return { subjects: [], resources: [] };
+  if (!isSupabaseConfigured()) return mock.searchCatalog(q);
+
+  const supabase = createClient();
+  const pattern = `%${q.replace(/[%_]/g, (c) => `\\${c}`)}%`;
+
+  const [byName, byCode, resourcesRes] = await Promise.all([
+    supabase
+      .from('subjects')
+      .select('id, name, code, branch_id, year, semester, credits, type')
+      .ilike('name', pattern)
+      .limit(8),
+    supabase
+      .from('subjects')
+      .select('id, name, code, branch_id, year, semester, credits, type')
+      .ilike('code', pattern)
+      .limit(8),
+    supabase
+      .from('resources')
+      .select('*, votes (count), subjects (name, code)')
+      .eq('status', 'approved')
+      .ilike('title', pattern)
+      .order('created_at', { ascending: false })
+      .limit(8),
+  ]);
+  if (byName.error) throw byName.error;
+  if (byCode.error) throw byCode.error;
+  if (resourcesRes.error) throw resourcesRes.error;
+
+  const subjectRows = new Map<string, (typeof byName.data)[number]>();
+  for (const row of [...byName.data, ...byCode.data]) subjectRows.set(row.id, row);
+  const subjects = [...subjectRows.values()]
+    .slice(0, 8)
+    .map(({ branch_id, ...s }) => ({ ...s, branchId: branch_id })) as Subject[];
+
+  const rows = resourcesRes.data as (ResourceRow & { subjects: { name: string; code: string } | null })[];
+  const paths = rows.map((r) => r.file_path).filter((p): p is string => p !== null);
+  const signedByPath = new Map<string, string>();
+  if (paths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from('resources')
+      .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
+    for (const s of signed ?? []) {
+      if (s.signedUrl && s.path) signedByPath.set(s.path, s.signedUrl);
+    }
+  }
+  const resources = rows.map((row) => ({
+    ...rowToResource(row, row.file_path ? signedByPath.get(row.file_path) ?? '#' : '#'),
+    subjectName: row.subjects?.name,
+    subjectCode: row.subjects?.code,
+  }));
+
+  return { subjects, resources };
+}
+
 export function findBranch(departments: Department[], branchId: string) {
   for (const dept of departments) {
     const branch = dept.branches.find((b) => b.id === branchId);
