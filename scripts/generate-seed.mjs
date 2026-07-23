@@ -6,6 +6,7 @@ const src = readFileSync(new URL('../lib/mockDb.ts', import.meta.url), 'utf8');
 
 // mockDb.ts is plain object literals; strip the import and type annotations so it evaluates as JS.
 const js = src
+  .slice(0, src.indexOf('const SUBJECTS_FOR_BRANCH'))
   .replace(/^import .*$/m, '')
   .replace(/: (Department|Subject|Resource)\[\]/g, '')
   .replace(/export /g, '');
