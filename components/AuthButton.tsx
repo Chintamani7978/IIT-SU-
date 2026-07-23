@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, FileText } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 
@@ -77,6 +77,13 @@ export default function AuthButton() {
             </p>
             <p className="text-xs text-[var(--muted-foreground)] truncate">{user.email}</p>
           </div>
+          <Link
+            href="/my-uploads"
+            onClick={() => setMenuOpen(false)}
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--card-hover)] transition-colors"
+          >
+            <FileText className="w-4 h-4" /> My Uploads
+          </Link>
           <button
             onClick={signOut}
             className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[var(--muted-foreground)] hover:text-red-400 hover:bg-red-500/10 transition-colors"

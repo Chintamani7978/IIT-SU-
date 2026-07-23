@@ -6,6 +6,7 @@ import { FileText, FileQuestion, PlaySquare, FlaskConical, ThumbsUp, ShieldCheck
 import { upvoteResource } from '@/lib/mockDb';
 import { toggleVote } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
+import PdfPreviewModal from '@/components/PdfPreviewModal';
 
 export default function SubjectTabs({
   resources,
@@ -161,9 +162,7 @@ export default function SubjectTabs({
                     Watch Video →
                   </a>
                 ) : (
-                  <a href={resource.pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium">
-                    View PDF →
-                  </a>
+                  <PdfPreviewModal url={resource.pdfUrl} label="View PDF" />
                 )}
               </div>
             </div>

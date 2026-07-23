@@ -1,6 +1,7 @@
 import { ShieldCheck, ExternalLink } from 'lucide-react';
 import { getPendingResources } from '@/lib/db';
 import ModerationActions from '@/components/ModerationActions';
+import PdfPreviewModal from '@/components/PdfPreviewModal';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,15 +58,19 @@ export default async function ModerationPage() {
                   </div>
 
                   {previewUrl && previewUrl !== '#' && (
-                    <a
-                      href={previewUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      {resource.type === 'video' ? 'Open video' : 'Preview PDF'}
-                    </a>
+                    resource.type === 'video' ? (
+                      <a
+                        href={previewUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        Open video
+                      </a>
+                    ) : (
+                      <PdfPreviewModal url={previewUrl} label="Preview PDF" />
+                    )
                   )}
                 </div>
 
