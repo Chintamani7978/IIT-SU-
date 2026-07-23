@@ -1,30 +1,11 @@
-'use client';
+import { ShieldCheck, ExternalLink } from 'lucide-react';
+import { getPendingResources } from '@/lib/db';
+import ModerationActions from '@/components/ModerationActions';
 
-import { useState, useEffect } from 'react';
-import { getPendingResources, approveResource } from '@/lib/mockDb';
-import { Resource } from '@/lib/types';
-import { ShieldCheck, Check, XCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 
-export default function ModerationPage() {
-  const [pending, setPending] = useState<Resource[]>([]);
-  const router = useRouter();
-
-  useEffect(() => {
-    // In a real app, this would be an API call
-    setPending(getPendingResources());
-  }, []);
-
-  const handleApprove = (id: string) => {
-    approveResource(id);
-    setPending(getPendingResources());
-    router.refresh();
-  };
-
-  const handleReject = (id: string) => {
-    // Basic mock rejection (just removing it from the pending list view for now)
-    setPending(pending.filter(r => r.id !== id));
-  };
+export default async function ModerationPage() {
+  const pending = await getPendingResources();
 
   return (
     <div className="space-y-8">
@@ -44,41 +25,54 @@ export default function ModerationPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {pending.map((resource) => (
-            <div key={resource.id} className="dash-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-[var(--card-hover)] transition-colors">
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-3">
-                  <span className="px-2 py-0.5 bg-[var(--background)] text-[var(--muted-foreground)] text-xs font-medium uppercase tracking-wider rounded border border-[var(--border)]">
-                    {resource.type}
-                  </span>
-                  <h3 className="text-lg font-semibold text-[var(--foreground)]">{resource.title}</h3>
+          {pending.map((resource) => {
+            const previewUrl =
+              resource.type === 'video' ? resource.videoUrl : resource.pdfUrl;
+            return (
+              <div
+                key={resource.id}
+                className="dash-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-[var(--card-hover)] transition-colors"
+              >
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <span className="px-2 py-0.5 bg-[var(--background)] text-[var(--muted-foreground)] text-xs font-medium uppercase tracking-wider rounded border border-[var(--border)]">
+                      {resource.type}
+                    </span>
+                    <h3 className="text-lg font-semibold text-[var(--foreground)]">{resource.title}</h3>
+                  </div>
+
+                  <div className="text-sm text-[var(--muted-foreground)] flex flex-wrap gap-x-4 gap-y-1">
+                    <span>
+                      Subject:{' '}
+                      <span className="text-[var(--primary)]/80">
+                        {resource.subjectName
+                          ? `${resource.subjectName} (${resource.subjectCode})`
+                          : resource.subjectId}
+                      </span>
+                    </span>
+                    <span>
+                      Author: {resource.authorName} {resource.batch && `(${resource.batch})`}
+                    </span>
+                    <span>Submitted: {new Date(resource.createdAt).toLocaleDateString()}</span>
+                  </div>
+
+                  {previewUrl && previewUrl !== '#' && (
+                    <a
+                      href={previewUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      {resource.type === 'video' ? 'Open video' : 'Preview PDF'}
+                    </a>
+                  )}
                 </div>
-                
-                <div className="text-sm text-[var(--muted-foreground)] flex flex-wrap gap-x-4 gap-y-1">
-                  <span>Subject ID: <span className="text-[var(--primary)]/80">{resource.subjectId}</span></span>
-                  <span>Author: {resource.authorName} {resource.batch && `(${resource.batch})`}</span>
-                  <span>Submitted: {new Date(resource.createdAt).toLocaleDateString()}</span>
-                </div>
+
+                <ModerationActions resourceId={resource.id} />
               </div>
-              
-              <div className="flex items-center gap-3 shrink-0">
-                <button
-                  onClick={() => handleReject(resource.id)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[var(--background)] hover:bg-red-500/10 text-[var(--muted-foreground)] hover:text-red-400 border border-[var(--border)] hover:border-red-500/30 rounded-md transition-colors"
-                >
-                  <XCircle className="w-4 h-4" />
-                  Reject
-                </button>
-                <button
-                  onClick={() => handleApprove(resource.id)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] hover:bg-[var(--neon-hover)] text-[var(--primary-foreground)] rounded-md transition-colors font-bold"
-                >
-                  <Check className="w-4 h-4" />
-                  Approve
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

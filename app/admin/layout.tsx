@@ -2,12 +2,23 @@ import AdminSidebar from "@/components/AdminSidebar";
 import RightSidebar from "@/components/RightSidebar";
 import { Moon, RefreshCw, Bell, Globe } from "lucide-react";
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { isSupabaseConfigured } from '@/lib/supabase/server';
+import { getCurrentUser, isModerator } from '@/lib/auth';
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Server-side gate: only moderators/admins may enter. In demo mode
+  // (no Supabase configured) the area stays open for local development.
+  if (isSupabaseConfigured()) {
+    const user = await getCurrentUser();
+    if (!user) redirect('/login?next=/admin');
+    if (!isModerator(user)) redirect('/');
+  }
+
   return (
     <>
       {/* Left Sidebar */}
@@ -52,7 +63,7 @@ export default function AdminLayout({
   );
 }
 
-function LayersIcon(props: any) {
+function LayersIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>

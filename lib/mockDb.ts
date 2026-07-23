@@ -165,7 +165,7 @@ export const SUBJECTS_FOR_BRANCH = (branchId: string) => {
   return SUBJECTS.filter(s => s.branchId === branchId);
 };
 
-export let RESOURCES: Resource[] = [
+export const RESOURCES: Resource[] = [
   {
     id: 'res-1',
     type: 'note',

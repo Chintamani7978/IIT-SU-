@@ -1,20 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Resource } from '@/lib/types';
 import { FileText, FileQuestion, PlaySquare, FlaskConical, ThumbsUp, ShieldCheck } from 'lucide-react';
 import { upvoteResource } from '@/lib/mockDb';
+import { toggleVote } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 
-export default function SubjectTabs({ resources }: { resources: Resource[] }) {
+export default function SubjectTabs({
+  resources,
+  subjectId,
+  live = false,
+}: {
+  resources: Resource[];
+  subjectId?: string;
+  live?: boolean;
+}) {
   const [activeTab, setActiveTab] = useState<'note' | 'pyq' | 'video' | 'lab'>('note');
   const [filterYear, setFilterYear] = useState<string>('all');
   const [filterExam, setFilterExam] = useState<string>('all');
+  const [voteError, setVoteError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
   const router = useRouter();
 
   const handleUpvote = (id: string) => {
-    upvoteResource(id);
-    router.refresh();
+    setVoteError(null);
+    if (!live || !subjectId) {
+      upvoteResource(id);
+      router.refresh();
+      return;
+    }
+    startTransition(async () => {
+      const result = await toggleVote(id, subjectId);
+      if (result.error) setVoteError(result.error);
+    });
   };
 
   const filteredResources = resources.filter((r) => {
@@ -85,6 +104,12 @@ export default function SubjectTabs({ resources }: { resources: Resource[] }) {
         </div>
       )}
 
+      {voteError && (
+        <p className="text-sm text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-md p-3">
+          {voteError}
+        </p>
+      )}
+
       {/* Resource Grid */}
       <div className="grid gap-4 md:grid-cols-2">
         {filteredResources.length === 0 ? (
@@ -112,10 +137,10 @@ export default function SubjectTabs({ resources }: { resources: Resource[] }) {
                   {resource.type === 'pyq' && (
                     <div className="flex gap-2 mt-2">
                       <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 text-xs rounded border border-purple-500/20 uppercase">
-                        {(resource as any).examType}
+                        {resource.examType}
                       </span>
                       <span className="px-2 py-0.5 bg-[var(--background)] text-[var(--muted-foreground)] text-xs rounded border border-[var(--border)]">
-                        {(resource as any).year}
+                        {resource.year}
                       </span>
                     </div>
                   )}
@@ -132,11 +157,11 @@ export default function SubjectTabs({ resources }: { resources: Resource[] }) {
                 </button>
                 
                 {resource.type === 'video' ? (
-                  <a href={(resource as any).videoUrl} target="_blank" rel="noreferrer" className="text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium">
+                  <a href={resource.videoUrl} target="_blank" rel="noreferrer" className="text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium">
                     Watch Video →
                   </a>
                 ) : (
-                  <a href={(resource as any).pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium">
+                  <a href={resource.pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-[var(--primary)] hover:text-[var(--neon-hover)] font-medium">
                     View PDF →
                   </a>
                 )}

@@ -1,5 +1,6 @@
 import { SUBJECTS } from '@/lib/mockDb';
 import { getSubjectById, getResourcesBySubjectId } from '@/lib/db';
+import { isSupabaseConfigured } from '@/lib/supabase/server';
 import SubjectTabs from '@/components/SubjectTabs';
 import Link from 'next/link';
 import { ChevronLeft, UploadCloud } from 'lucide-react';
@@ -27,6 +28,7 @@ export default async function SubjectPage({
   }
 
   const resources = await getResourcesBySubjectId(subject.id);
+  const live = isSupabaseConfigured();
 
   return (
     <div className="space-y-8 pb-20">
@@ -50,11 +52,11 @@ export default async function SubjectPage({
           </div>
         </div>
 
-        <UploadModal subjectId={subject.id} />
+        <UploadModal subjectId={subject.id} live={live} />
       </div>
 
       <main>
-        <SubjectTabs resources={resources} />
+        <SubjectTabs resources={resources} subjectId={subject.id} live={live} />
       </main>
     </div>
   );

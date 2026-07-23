@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import { usePathname } from 'next/navigation';
+import AuthButton from './AuthButton';
 
 export default function UserLayoutWrapper({
   children,
@@ -45,13 +46,8 @@ export default function UserLayoutWrapper({
             <Link href="#" className="text-zinc-300 hover:text-white transition-all">About</Link>
           </div>
 
-          {/* Profile Icon */}
-          <button className="w-11 h-11 flex flex-col justify-center items-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors shrink-0 text-zinc-300 hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </button>
+          {/* Profile / Auth */}
+          <AuthButton />
         </div>
       </div>
 

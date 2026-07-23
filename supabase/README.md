@@ -15,6 +15,21 @@ The app reads live data from Supabase when `NEXT_PUBLIC_SUPABASE_URL` and
    secret/service role key in this repo or in any `NEXT_PUBLIC_` variable.
 4. Add the same two variables to the Vercel project's environment settings.
 
+## Google sign-in setup
+
+1. In Google Cloud Console, create an OAuth 2.0 Client ID (type: Web application).
+   - Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`
+     (shown in the Supabase dashboard under **Authentication → Sign In / Providers → Google**).
+2. In the Supabase dashboard, enable the **Google** provider and paste the
+   client ID + secret.
+3. Under **Authentication → URL Configuration**:
+   - Site URL: the production URL (e.g. `https://suiit.site`)
+   - Additional redirect URLs: `http://localhost:3000/**` and the Vercel
+     preview domain, so login works in development too.
+
+The app's login page (`/login`) redirects through `/auth/callback`, which
+exchanges the OAuth code for a session.
+
 ## Verifying
 
 - `npm run dev` → `/departments` should show the same catalog as before, now

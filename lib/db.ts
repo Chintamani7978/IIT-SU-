@@ -174,6 +174,41 @@ export async function getResourcesBySubjectId(subjectId: string): Promise<Resour
   );
 }
 
+export type PendingResource = Resource & { subjectName?: string; subjectCode?: string };
+
+// Moderator-only read: uses the cookie-bound client so RLS sees the caller's
+// role. Returns pending items with short-lived signed preview URLs.
+export async function getPendingResources(): Promise<PendingResource[]> {
+  if (!isSupabaseConfigured()) return mock.getPendingResources();
+
+  const { createClient: createCookieClient } = await import('./supabase/server');
+  const supabase = await createCookieClient();
+  const { data, error } = await supabase
+    .from('resources')
+    .select('*, votes (count), subjects (name, code)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+
+  const rows = data as (ResourceRow & { subjects: { name: string; code: string } | null })[];
+  const paths = rows.map((r) => r.file_path).filter((p): p is string => p !== null);
+  const signedByPath = new Map<string, string>();
+  if (paths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from('resources')
+      .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
+    for (const s of signed ?? []) {
+      if (s.signedUrl && s.path) signedByPath.set(s.path, s.signedUrl);
+    }
+  }
+
+  return rows.map((row) => ({
+    ...rowToResource(row, row.file_path ? signedByPath.get(row.file_path) ?? '#' : '#'),
+    subjectName: row.subjects?.name,
+    subjectCode: row.subjects?.code,
+  }));
+}
+
 export function findBranch(departments: Department[], branchId: string) {
   for (const dept of departments) {
     const branch = dept.branches.find((b) => b.id === branchId);
