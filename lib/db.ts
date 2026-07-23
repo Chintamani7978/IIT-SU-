@@ -2,9 +2,23 @@
 // falls back to the local mock data so the app keeps working before the
 // team wires up a Supabase project (see supabase/README.md).
 import 'server-only';
+import { createClient as createAnonClient, SupabaseClient } from '@supabase/supabase-js';
 import { Department, Resource, Subject } from './types';
-import { createClient, isSupabaseConfigured } from './supabase/server';
+import { isSupabaseConfigured } from './supabase/server';
 import * as mock from './mockDb';
+
+// Public catalog/resource reads use a session-less anon client so pages can
+// stay statically rendered (the cookie-bound client in lib/supabase/server.ts
+// would force dynamic rendering; it is for authenticated operations only).
+let anonClient: SupabaseClient | undefined;
+function createClient(): SupabaseClient {
+  anonClient ??= createAnonClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+  return anonClient;
+}
 
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
@@ -70,7 +84,7 @@ function rowToResource(row: ResourceRow, pdfUrl: string): Resource {
 export async function getDepartments(): Promise<Department[]> {
   if (!isSupabaseConfigured()) return mock.DEPARTMENTS;
 
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('departments')
     .select('id, name, branches (id, name)')
@@ -87,7 +101,7 @@ export async function getSubjectsByBranchYearSemester(
   if (!isSupabaseConfigured())
     return mock.getSubjectsByBranchYearSemester(branchId, year, semester);
 
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('subjects')
     .select('id, name, code, branch_id, year, semester, credits, type')
@@ -99,10 +113,27 @@ export async function getSubjectsByBranchYearSemester(
   return data.map(({ branch_id, ...s }) => ({ ...s, branchId: branch_id })) as Subject[];
 }
 
+export async function getSubjectsByBranchYear(
+  branchId: string,
+  year: number
+): Promise<Subject[]> {
+  if (!isSupabaseConfigured()) return mock.getSubjectsByBranchAndYear(branchId, year);
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('subjects')
+    .select('id, name, code, branch_id, year, semester, credits, type')
+    .eq('branch_id', branchId)
+    .eq('year', year)
+    .order('code');
+  if (error) throw error;
+  return data.map(({ branch_id, ...s }) => ({ ...s, branchId: branch_id })) as Subject[];
+}
+
 export async function getSubjectById(subjectId: string): Promise<Subject | undefined> {
   if (!isSupabaseConfigured()) return mock.getSubjectById(subjectId);
 
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('subjects')
     .select('id, name, code, branch_id, year, semester, credits, type')
@@ -117,7 +148,7 @@ export async function getSubjectById(subjectId: string): Promise<Subject | undef
 export async function getResourcesBySubjectId(subjectId: string): Promise<Resource[]> {
   if (!isSupabaseConfigured()) return mock.getResourcesBySubjectId(subjectId);
 
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('resources')
     .select('*, votes (count)')
