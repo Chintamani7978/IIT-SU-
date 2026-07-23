@@ -17,7 +17,7 @@ export default function UserLayoutWrapper({
       {/* Top Left Logo */}
       <Link href="/" className="absolute top-6 left-6 md:left-10 z-50 pointer-events-auto">
         <img
-          src="/logo.svg"
+          src={`${process.env.NODE_ENV === 'production' ? '/IIT-SU-' : ''}/logo.svg`}
           alt="SUIIT E-Learning Logo"
           className="h-14 w-auto"
         />
