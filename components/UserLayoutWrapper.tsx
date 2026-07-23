@@ -18,7 +18,7 @@ export default function UserLayoutWrapper({
       <Link href="/" className="absolute top-6 left-6 md:left-10 z-50 pointer-events-auto">
         <Image
           src="/images/iit-burla-logo.png"
-          alt="IIT Burla E-Learning Logo"
+          alt="SUIIT E-Learning Logo"
           width={220}
           height={70}
           className="h-14 w-auto"

@@ -69,7 +69,7 @@ export default function UserLandingPage() {
       <div className="text-center max-w-5xl mx-auto mb-4 px-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary)]/5 text-[var(--primary)] text-[10px] font-bold uppercase tracking-[0.2em] mb-4 mx-auto border border-[var(--primary)]/20 shadow-[0_0_20px_rgba(204,255,0,0.1)]" data-hero-glow>
           <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-ping" data-hero-ping></span>
-          IIT SU E-Learning
+          SUIIT E-Learning
         </div>
         
         <h1 className="text-4xl md:text-5xl font-black text-[var(--foreground)] tracking-tighter mb-3 leading-tight">
@@ -84,7 +84,7 @@ export default function UserLandingPage() {
         </h1>
         
         <p className="text-sm md:text-base text-zinc-400 font-light mb-6 max-w-xl mx-auto leading-relaxed tracking-wide" data-hero-subtitle>
-          The ultimate resource hub for IIT SU students. Access verified notes, PYQs, and curated video lectures.
+          The ultimate resource hub for SUIIT students. Access verified notes, PYQs, and curated video lectures.
         </p>
 
         {/* Centralized Search Bar */}

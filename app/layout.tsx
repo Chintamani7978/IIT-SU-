@@ -3,7 +3,7 @@ import "./globals.css";
 import SearchCommandBar from "@/components/SearchCommandBar";
 
 export const metadata: Metadata = {
-  title: "IIT SU | E-Learning Platform",
+  title: "SUIIT | E-Learning Platform",
   description: "Engineering College Resource Platform",
 };
 

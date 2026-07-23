@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Menu, X, ShieldCheck } from 'lucide-react';
+
+const basePath = process.env.NODE_ENV === 'production' ? '/IIT-SU-' : '';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,13 +15,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <Link href="/" className="block">
-              <Image
-                src="/images/iit-burla-logo.png"
-                alt="IIT Burla E-Learning Logo"
-                width={220}
-                height={70}
+              <img
+                src={`${basePath}/images/iit-burla-logo.png`}
+                alt="SUIIT E-Learning Logo"
                 className="h-12 w-auto"
-                priority
               />
             </Link>
           </div>

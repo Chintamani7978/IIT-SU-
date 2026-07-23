@@ -100,7 +100,7 @@ export default function AdminSidebar() {
         <Link href="/" className="block">
           <Image
             src="/images/iit-burla-logo.png"
-            alt="IIT Burla E-Learning Logo"
+            alt="SUIIT E-Learning Logo"
             width={220}
             height={70}
             className="h-12 w-auto"
