@@ -1,22 +1,14 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { DEPARTMENTS } from '@/lib/mockDb';
+import { findBranch, getDepartments } from '@/lib/db';
 
 export default async function BranchYearSelector({ params }: { params: Promise<{ branch: string }> }) {
   const { branch: branchId } = await params;
-  
-  // Find branch name
-  let branchName = `Unknown: ${branchId}`;
-  let deptName = 'Department';
-  
-  for (const d of DEPARTMENTS) {
-    const b = d.branches.find(b => b.id === branchId);
-    if (b) {
-      branchName = b.name;
-      deptName = d.name;
-      break;
-    }
-  }
+
+  const found = findBranch(await getDepartments(), branchId);
+  const branchName = found?.branch.name ?? `Unknown: ${branchId}`;
+  const deptName = found?.department.name ?? 'Department';
 
   const years = [1, 2, 3, 4];
 

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Book, FlaskConical, ArrowLeft, Code2, Presentation, Mic } from 'lucide-react';
-import { DEPARTMENTS, SUBJECTS } from '@/lib/mockDb';
+import { findBranch, getDepartments, getSubjectsByBranchYearSemester } from '@/lib/db';
 
 const typeIcons: Record<string, typeof Book> = {
   theory: Book,
@@ -19,14 +19,13 @@ export default async function SemesterPage({
   const yearNum = parseInt(year, 10);
   const semNum = parseInt(semester, 10);
 
-  let branchName = branch;
-  let deptName = 'Department';
-  for (const d of DEPARTMENTS) {
-    const b = d.branches.find(b => b.id === branch);
-    if (b) { branchName = b.name; deptName = d.name; break; }
-  }
-
-  const subjects = SUBJECTS.filter(s => s.branchId === branch && s.year === yearNum && s.semester === semNum);
+  const [departments, subjects] = await Promise.all([
+    getDepartments(),
+    getSubjectsByBranchYearSemester(branch, yearNum, semNum),
+  ]);
+  const found = findBranch(departments, branch);
+  const branchName = found?.branch.name ?? branch;
+  const deptName = found?.department.name ?? 'Department';
   const yearLabels: Record<number, string> = { 1: 'First', 2: 'Second', 3: 'Third', 4: 'Fourth' };
   const totalCredits = subjects.reduce((sum, s) => sum + s.credits, 0);
 

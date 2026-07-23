@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { DEPARTMENTS } from '@/lib/mockDb';
+import { getDepartments } from '@/lib/db';
 import { GraduationCap, ChevronRight, Layers } from 'lucide-react';
 
-export default function DepartmentsMenu() {
+export default async function DepartmentsMenu() {
+  const departments = await getDepartments();
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
@@ -13,7 +14,7 @@ export default function DepartmentsMenu() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {DEPARTMENTS.map((dept) => (
+        {departments.map((dept) => (
           <div key={dept.id} className="dash-card flex flex-col overflow-hidden group">
             <div className="p-6 border-b border-[var(--border)] flex items-center gap-4 bg-[var(--background)]">
               <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center shrink-0">

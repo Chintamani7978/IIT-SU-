@@ -1,8 +1,13 @@
-import { getSubjectById, getResourcesBySubjectId, SUBJECTS } from '@/lib/mockDb';
+import { SUBJECTS } from '@/lib/mockDb';
+import { getSubjectById, getResourcesBySubjectId } from '@/lib/db';
 import SubjectTabs from '@/components/SubjectTabs';
 import Link from 'next/link';
 import { ChevronLeft, UploadCloud } from 'lucide-react';
 import UploadModal from '@/components/UploadModal';
+
+// Re-render periodically so newly approved resources appear and the signed
+// PDF URLs (1h TTL) never go stale on a cached page.
+export const revalidate = 300;
 
 export default async function SubjectPage({
   params
@@ -10,7 +15,7 @@ export default async function SubjectPage({
   params: Promise<{ subjectId: string }>
 }) {
   const { subjectId } = await params;
-  const subject = getSubjectById(subjectId);
+  const subject = await getSubjectById(subjectId);
 
   if (!subject) {
     return (
@@ -21,7 +26,7 @@ export default async function SubjectPage({
     );
   }
 
-  const resources = getResourcesBySubjectId(subject.id);
+  const resources = await getResourcesBySubjectId(subject.id);
 
   return (
     <div className="space-y-8 pb-20">

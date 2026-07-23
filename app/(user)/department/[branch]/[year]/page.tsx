@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { DEPARTMENTS, SUBJECTS } from '@/lib/mockDb';
+import { findBranch, getDepartments, getSubjectsByBranchYear } from '@/lib/db';
 
 export default async function BranchYearPage({
   params
@@ -10,12 +10,13 @@ export default async function BranchYearPage({
   const { branch, year } = await params;
   const yearNum = parseInt(year, 10);
 
-  let branchName = branch;
-  let deptName = 'Department';
-  for (const d of DEPARTMENTS) {
-    const b = d.branches.find(b => b.id === branch);
-    if (b) { branchName = b.name; deptName = d.name; break; }
-  }
+  const [departments, yearSubjects] = await Promise.all([
+    getDepartments(),
+    getSubjectsByBranchYear(branch, yearNum),
+  ]);
+  const found = findBranch(departments, branch);
+  const branchName = found?.branch.name ?? branch;
+  const deptName = found?.department.name ?? 'Department';
 
   const yearLabels: Record<number, string> = { 1: 'First', 2: 'Second', 3: 'Third', 4: 'Fourth' };
   const yearSemMap: Record<number, number[]> = { 1: [1, 2], 2: [3, 4], 3: [5, 6], 4: [7, 8] };
@@ -42,7 +43,7 @@ export default async function BranchYearPage({
 
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
         {semesters.map((sem, index) => {
-          const subjectCount = SUBJECTS.filter(s => s.branchId === branch && s.year === yearNum && s.semester === sem).length;
+          const subjectCount = yearSubjects.filter(s => s.semester === sem).length;
           return (
             <Link
               key={sem}

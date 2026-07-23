@@ -1,5 +1,5 @@
 {
-  "name": "SU IIT ",
+  "name": "MyWebSite",
   "short_name": "MySite",
   "icons": [
     {
@@ -15,7 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#100d0d",
+  "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "display": "standalone"
 }
