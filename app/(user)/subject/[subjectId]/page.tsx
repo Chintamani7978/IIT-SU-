@@ -3,7 +3,7 @@ import { getSubjectById, getResourcesBySubjectId } from '@/lib/db';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
 import SubjectTabs from '@/components/SubjectTabs';
 import Link from 'next/link';
-import { ChevronLeft, UploadCloud } from 'lucide-react';
+import { ArrowLeft, UploadCloud } from 'lucide-react';
 import UploadModal from '@/components/UploadModal';
 
 // Re-render periodically so newly approved resources appear and the signed
@@ -31,31 +31,33 @@ export default async function SubjectPage({
   const live = isSupabaseConfigured();
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-        <div className="flex items-start gap-4">
-          <Link href={`/department/${subject.branchId}/${subject.year}`} className="p-2 mt-1 bg-[var(--card)] rounded-full hover:bg-[var(--card-hover)] text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors border border-[var(--border)]">
-            <ChevronLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)]">
-                {subject.name}
-              </h1>
-              <span className="px-2 py-1 bg-[var(--background)] text-[var(--muted-foreground)] text-xs font-mono rounded border border-[var(--border)]">
-                {subject.code}
-              </span>
-            </div>
-            <p className="text-[var(--muted-foreground)]">
-              Semester {subject.semester} • Year {subject.year}
-            </p>
-          </div>
+    <div className="min-h-[calc(100vh-120px)] max-w-5xl mx-auto px-4 py-8 flex flex-col justify-center">
+      <div className="flex flex-col items-center text-center">
+        <Link href={`/department/${subject.branchId}/${subject.year}`} className="group flex items-center gap-3 text-[10px] font-semibold tracking-[0.2em] uppercase text-zinc-400 hover:text-[var(--primary)] transition-colors mb-8">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1.5 transition-transform duration-300 ease-out" /> 
+          Back to Subjects
+        </Link>
+
+        <div className="mb-12">
+          <p className="text-[10px] font-mono tracking-[0.2em] text-zinc-500 mb-4 uppercase border border-white/10 px-3 py-1 rounded inline-block">
+            {subject.code}
+          </p>
+          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-none max-w-4xl mx-auto mb-4">
+            {subject.name}
+          </h1>
+          <p className="text-sm font-mono text-[var(--primary)] tracking-widest uppercase">
+            Year {subject.year} <span className="text-zinc-600 mx-2">/</span> Semester {subject.semester}
+          </p>
         </div>
 
-        <UploadModal subjectId={subject.id} live={live} />
+        <div className="mb-12">
+          <UploadModal subjectId={subject.id} live={live} />
+        </div>
       </div>
 
-      <main>
+      <div className="w-full h-px bg-white/10 mb-8"></div>
+
+      <main className="w-full">
         <SubjectTabs resources={resources} subjectId={subject.id} live={live} />
       </main>
     </div>
