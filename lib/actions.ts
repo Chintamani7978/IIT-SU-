@@ -27,7 +27,34 @@ export interface SubmitResourceInput {
 }
 
 export async function submitResource(input: SubmitResourceInput): Promise<ActionResult> {
-  if (!isSupabaseConfigured()) return NOT_CONFIGURED;
+  if (!isSupabaseConfigured()) {
+    // In demo mode, modify the server's in-memory mock database
+    const { addResource } = await import('./mockDb');
+    
+    const newResource = {
+      id: `res-${Date.now()}`,
+      subjectId: input.subjectId,
+      title: input.title,
+      authorName: input.authorName || 'Anonymous',
+      batch: input.batch || '',
+      type: input.type,
+      unit: input.unit || undefined,
+      upvotes: 0,
+      isVerified: false,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      ...(input.type === 'video'
+        ? { videoUrl: input.videoUrl || '#' }
+        : { pdfUrl: input.filePath || '#', badges: [] }),
+      ...(input.type === 'pyq' ? { examType: input.examType, year: input.examYear } : {}),
+    };
+    
+    addResource(newResource as any);
+    revalidatePath(`/subject/${input.subjectId}`);
+    revalidatePath('/admin/moderation');
+    revalidatePath('/admin');
+    return {};
+  }
 
   const user = await getCurrentUser();
   if (!user) return { error: 'You must be signed in to upload.' };

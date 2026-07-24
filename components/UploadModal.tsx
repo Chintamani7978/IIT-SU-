@@ -43,31 +43,24 @@ export default function UploadModal({ subjectId, live = false }: { subjectId: st
     e.preventDefault();
     setError(null);
 
-    if (!live) {
-      // Demo mode: keep the old in-memory behavior until Supabase is configured.
-      const newResource = {
-        id: `res-${Date.now()}`,
-        subjectId,
-        title: formData.title,
-        authorName: formData.authorName,
-        batch: formData.batch,
-        type: formData.type,
-        unit: formData.unit || undefined,
-        upvotes: 0,
-        isVerified: false,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        ...(formData.type === 'video'
-          ? { videoUrl: formData.link || '#' }
-          : { pdfUrl: formData.link || '#', badges: [] }),
-        ...(formData.type === 'pyq' ? { examType: formData.examType, year: formData.year } : {}),
-      };
-      addResource(newResource as unknown as Resource);
-      setSubmitted(true);
-      return;
+    if (!live && !needsFile) {
+      // In demo mode without a file, bypass the file check and upload directly via Server Action
+    } else if (needsFile) {
+      if (!file && live) {
+        setError('Please choose a PDF file.');
+        return;
+      }
+      if (file && file.type !== 'application/pdf') {
+        setError('Only PDF files are accepted.');
+        return;
+      }
+      if (file && file.size > MAX_PDF_BYTES) {
+        setError('PDF must be 20 MB or smaller.');
+        return;
+      }
     }
 
-    if (!user) return;
+    if (live && !user) return;
     if (needsFile) {
       if (!file) {
         setError('Please choose a PDF file.');
@@ -105,7 +98,7 @@ export default function UploadModal({ subjectId, live = false }: { subjectId: st
         authorName: formData.authorName,
         batch: formData.batch || undefined,
         unit: formData.unit || undefined,
-        filePath,
+        filePath: live ? filePath : formData.link,
         videoUrl: formData.type === 'video' ? formData.link : undefined,
         examType: formData.examType as 'mid-sem' | 'end-sem',
         examYear: formData.year,
